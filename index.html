@@ -488,11 +488,15 @@ function colIndex(header,k){ return header.findIndex(c=>cell(c).toLowerCase().in
 
 function parsePlayerStats(sheet){
   if(!sheet) return [];
-  const aoa=toAOA(sheet), h=findHeaderRow(aoa,['rank','name']);
+  const aoa=toAOA(sheet), h=findHeaderRow(aoa,['rank']);
   if(h===-1) return [];
   const header=aoa[h];
-  const iRank=colIndex(header,'rank'), iName=colIndex(header,'name'), iMatches=colIndex(header,'match'),
-        iGoals=colIndex(header,'goal'), iAssists=colIndex(header,'assist'), iMvp=colIndex(header,'mvp'), iGpm=colIndex(header,'goals/match');
+  const iRank=colIndex(header,'rank'),
+        iName=colIndex(header,'name')>-1?colIndex(header,'name'):1,
+        iMatches=colIndex(header,'match')>-1?colIndex(header,'match'):2,
+        iGoals=colIndex(header,'goal')>-1?colIndex(header,'goal'):3,
+        iAssists=colIndex(header,'assist')>-1?colIndex(header,'assist'):4,
+        iMvp=colIndex(header,'mvp'), iGpm=colIndex(header,'goals/match');
   const out=[];
   for(let r=h+1;r<aoa.length;r++){
     const row=aoa[r], name=cell(row[iName]);
@@ -521,11 +525,15 @@ function parseMatchHistory(sheet){
   return out;
 }
 function parseArchive(sheet, sheetName){
-  const aoa=toAOA(sheet), h=findHeaderRow(aoa,['rank','name']);
+  const aoa=toAOA(sheet), h=findHeaderRow(aoa,['rank']);
   const players = h>-1 ? (()=>{
     const header=aoa[h];
-    const iRank=colIndex(header,'rank'), iName=colIndex(header,'name'), iMatches=colIndex(header,'match'),
-          iGoals=colIndex(header,'goal'), iAssists=colIndex(header,'assist'), iMvp=colIndex(header,'mvp');
+    const iRank=colIndex(header,'rank'),
+          iName=colIndex(header,'name')>-1?colIndex(header,'name'):1,
+          iMatches=colIndex(header,'match')>-1?colIndex(header,'match'):2,
+          iGoals=colIndex(header,'goal')>-1?colIndex(header,'goal'):3,
+          iAssists=colIndex(header,'assist')>-1?colIndex(header,'assist'):4,
+          iMvp=colIndex(header,'mvp')>-1?colIndex(header,'mvp'):5;
     const out=[];
     for(let r=h+1;r<aoa.length;r++){
       const row=aoa[r], name=cell(row[iName]);
