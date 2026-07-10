@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -303,7 +304,7 @@ footer a{color:var(--muted); text-decoration:underline; font-size:10.5px;}
     <h2>Drop your Excel sheet</h2>
     <p>Apni Football_Track.xlsx file yahan drag karo ya select karo — dashboard turant ban jayega.</p>
     <button class="btn primary" type="button" id="browseBtn">Choose Excel File</button>
-    <small>Sheets: Player Stats · Match History · Season Archive</small>
+    <small>Sheets: Player Stats · Match History</small>
   </div>
   <input type="file" id="fileInput" accept=".xlsx,.xls">
 
@@ -363,13 +364,6 @@ footer a{color:var(--muted); text-decoration:underline; font-size:10.5px;}
       <div class="match-list" id="matchList"></div>
     </section>
 
-    <section class="section d5" id="archiveSection" style="display:none;">
-      <div class="section-head">
-        <div><div class="eyebrow">Trophy Case</div><h3>Past Seasons</h3></div>
-      </div>
-      <div id="archiveList"></div>
-    </section>
-
   </div>
 
   <footer>
@@ -390,8 +384,7 @@ footer a{color:var(--muted); text-decoration:underline; font-size:10.5px;}
 const SHEET_ID = '1ZyN2itJxOFqdL39Z9mDOqdT7MrStY2fizOOKennodaE';
 const GIDS = {
   player: '1806309797',   // Player Stats tab
-  match: '857387941',     // Match History tab
-  archive: '812921346'    // Season 1 Archive tab
+  match: '857387941'      // Match History tab
 };
 function csvUrl(gid){
   return `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&gid=${gid}&_ts=${Date.now()}`;
@@ -404,15 +397,14 @@ async function fetchCsvAoa(gid){
   return parsed.data;
 }
 async function loadFromGoogleSheets(){
-  const [playerAoa, matchAoa, archiveAoa] = await Promise.all([
+  const [playerAoa, matchAoa] = await Promise.all([
     fetchCsvAoa(GIDS.player),
-    fetchCsvAoa(GIDS.match),
-    fetchCsvAoa(GIDS.archive)
+    fetchCsvAoa(GIDS.match)
   ]);
   return {
     players: parsePlayerStats(playerAoa),
     matches: parseMatchHistory(matchAoa),
-    archives: [parseArchive(archiveAoa, 'Season 1 Archive')],
+    archives: [],
     filename: 'Google Sheet (live)',
     savedAt: Date.now()
   };
@@ -634,19 +626,6 @@ function renderApp(data){
   }).join('') : '<div class="empty-note glass">No matches logged yet.</div>';
   applyScrollReveal(matchList);
 
-  const archiveSection=document.getElementById('archiveSection'), archiveList=document.getElementById('archiveList');
-  if(archives.length){
-    archiveSection.style.display='block';
-    archiveList.innerHTML = archives.map(a=>{
-      const top=a.players.length?[...a.players].sort((x,y)=>y.goals-x.goals)[0]:null;
-      const mvp=a.players.length?[...a.players].sort((x,y)=>y.mvp-x.mvp)[0]:null;
-      const rows=a.players.slice(0,10).map(p=>`<tr><td class="num">${p.rank}</td><td><div class="name-cell"><span class="jersey">${p.rank}</span>${p.name}</div></td>
-        <td class="num">${p.matches}</td><td class="num">${p.goals}</td><td class="num">${p.assists}</td><td class="num"><span class="mvp-pill">${p.mvp}</span></td></tr>`).join('');
-      return `<div class="archive-card glass"><div class="archive-head"><div class="archive-title">🏆 ${a.title}</div><div class="archive-range">${a.range||''}</div>
-        <div class="archive-podium">${top?`<div class="podium-chip">🏆 <b>${top.name}</b> (${top.goals})</div>`:''}${mvp?`<div class="podium-chip">⭐ <b>${mvp.name}</b> (${mvp.mvp})</div>`:''}</div></div>
-        <div class="table-scroll"><table><thead><tr><th class="num">Rk</th><th>Name</th><th class="num">M</th><th class="num">G</th><th class="num">A</th><th class="num">MVP</th></tr></thead><tbody>${rows}</tbody></table></div></div>`;
-    }).join('');
-  } else { archiveSection.style.display='none'; }
 }
 
 let sortState={key:'rank',dir:1}, currentPlayers=[];
