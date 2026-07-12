@@ -168,7 +168,7 @@ input[type=file]{display:none;}
 .lm-meta{text-align:center; font-size:11px; color:var(--muted); margin-top:10px;}
 .lm-empty{text-align:center; color:var(--muted); font-size:12.5px; padding:4px 0;}
 
-.stat-strip{display:grid; grid-template-columns:repeat(3,1fr); gap:8px; margin-top:10px;}
+.stat-strip{display:grid; grid-template-columns:repeat(4,1fr); gap:8px; margin-top:10px;}
 .stat-box{background:rgba(0,0,0,.3); border:1px solid var(--border); border-radius:13px; padding:14px 6px; text-align:center;}
 .stat-num{font-family:'Bebas Neue',sans-serif; font-size:26px; color:var(--ink);}
 .stat-lbl{font-size:9px; text-transform:uppercase; letter-spacing:1px; color:var(--muted); margin-top:3px;}
@@ -325,6 +325,7 @@ footer a{color:var(--muted); text-decoration:underline; font-size:10.5px;}
         </div>
         <div class="stat-strip">
           <div class="stat-box"><div class="stat-num" id="statSundays">0</div><div class="stat-lbl">Sundays</div></div>
+          <div class="stat-box"><div class="stat-num" id="statMatches">0</div><div class="stat-lbl">Matches</div></div>
           <div class="stat-box"><div class="stat-num" id="statAvgGoals">0</div><div class="stat-lbl">Avg Goals</div></div>
           <div class="stat-box"><div class="stat-num" id="statPlayers">0</div><div class="stat-lbl">Players</div></div>
         </div>
@@ -608,7 +609,10 @@ function renderApp(data){
 
   const totalGoals=matches.reduce((s,m)=>s+m.scoreA+m.scoreB,0);
   const avgGoals = matches.length ? totalGoals/matches.length : 0;
-  animateNumber(document.getElementById('statSundays'), matches.length);
+  const uniqueDates = new Set(matches.map(m=>m.date).filter(Boolean));
+  const sundaysCount = uniqueDates.size || matches.length;
+  animateNumber(document.getElementById('statSundays'), sundaysCount);
+  animateNumber(document.getElementById('statMatches'), matches.length);
   animateNumber(document.getElementById('statAvgGoals'), avgGoals, avgGoals%1!==0?1:0);
   animateNumber(document.getElementById('statPlayers'), players.length);
 
